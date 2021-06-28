@@ -66,10 +66,11 @@ string xml2json(const pugi::xml_document& req_doc, const string& fid) {
 string err(const string& msg) 
 {
     string xml = "<response>";
-    xml += "<Header></Header>";
-    xml += "<Body>";
+    xml += "<Header>";
     xml += "<result>1</result>";
     xml += "<funcid>yb04.10.01.16</funcid>";
+    xml +="</Header>";
+    xml += "<Body>";    
     xml += "<msg>" + msg + "</msg>";
     xml += "</Body>";
     xml += "</response>";
@@ -183,7 +184,7 @@ int _stdcall YlzEcard(char* req, char* resp)
 
             if (ret != 0) {
                 WriteLog("=======ÃâµÇÂ¼Ê§°Ü======");
-                WriteLog(outputdata);
+                WriteLog(errmsg);
                 throw std::exception{ errmsg };
             }
 
@@ -202,7 +203,7 @@ int _stdcall YlzEcard(char* req, char* resp)
 
             if (ret != 0) {
                 WriteLog("=======µÇÂ¼Ê§°Ü======");
-                WriteLog(outputdata);
+                WriteLog(errmsg);
                 throw std::exception{ errmsg };
             }
             WriteLog("=======µÇÂ¼·µ»Ø======");
@@ -210,18 +211,17 @@ int _stdcall YlzEcard(char* req, char* resp)
             //
             string xml = json2xml(outputdata);
             snprintf(resp, reslen, "%s", xml.c_str());
-            //snprintf(resp, reslen, "%s", outputdata);
+            WriteLog(xml.c_str());
 
             code = 0;
-        }
-        
-        return code;
-        
+        }                       
     }
     catch (const std::exception& e)
     {
         code = -1;
-        snprintf(resp, reslen, "%s", err(e.what()).c_str());
+        string xml = err(e.what());
+        snprintf(resp, reslen, "%s", xml.c_str());
+        WriteLog(xml.c_str());
     }    
 
     return code;
